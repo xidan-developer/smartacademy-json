@@ -1,0 +1,9 @@
+.input-color{
+	height: 50px;
+}
+.list-group-item {
+	cursor: pointer;
+}
+.container{
+	max-width: 600px;
+}
