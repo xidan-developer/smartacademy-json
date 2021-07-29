@@ -1,48 +1,14 @@
-const section = document.querySelector('.form');
-const inputFile = document.querySelector('#input-file');
-const btnReset = document.querySelector('.btn-reset');
+const container = document.querySelector('.form');
+const fileinput = document.querySelector('#input-file');
+const buttonReset = document.querySelector('.btn-reset');
 const filesMenu = document.querySelector('.menu');
-let selectedFiles;
-let file;
 const reader = new FileReader();
 const request = new XMLHttpRequest();
-
-inputFile.addEventListener('change', () => {
-	selectedFiles = document.querySelector('#input-file').files;
-	filesMenu.innerHTML = '';
-
-	const select = document.createElement("select");
-	for (let i = 0; i < selectedFiles.length; i++) {
-		const file = selectedFiles[i];
-		const option = document.createElement("option");
-		option.textContent = file.name;
-		select.appendChild(option);
-	}
-	select.size = selectedFiles.length;
-	select.classList.add("mb-1", "form-control");
-	filesMenu.appendChild(select);
-
-	file = selectedFiles[0];
-	parser(file);
-})
-
-filesMenu.addEventListener('click', (e) => {
-	for (let i = 0; i < selectedFiles.length; i++) {
-		if (e.target.textContent === selectedFiles[i].name) {
-			file = selectedFiles[i];
-			parser(file);
-			break;
-		}
-	}
-})
-
-btnReset.addEventListener('click', () => {
-	section.innerHTML = '';
-	filesMenu.innerHTML = '';
-})
+let selectfile;
+let file;
 
 function parser(file) {
-	section.innerHTML = '';
+	container.innerHTML = '';
 	reader.readAsDataURL(file);
 	reader.onload = function () {
 		request.open('GET', reader.result);
@@ -51,18 +17,16 @@ function parser(file) {
 	};
 
 	request.onload = function () {
-		const jsonText = request.response;
-		const jsonObj = JSON.parse(jsonText);
-		createPage(jsonObj);
+		const jsonInfo = request.response;
+		const objectJson = JSON.parse(jsonInfo);
+		createPage(objectJson);
 	}
 
 }
 
-
-
-function createPage(jsonObj) {
-	const keys = Object.keys(jsonObj)
-	jsonObj[keys[1]].forEach((elem, i) => {
+function createPage(objectJson) {
+	const keys = Object.keys(objectJson)
+	objectJson[keys[1]].forEach((elem, i) => {
 		const fieldsKeys = Object.keys(elem);
 		fieldsKeys.forEach(el => {
 			switch (el) {
@@ -79,8 +43,8 @@ function createPage(jsonObj) {
 		});
 	});
 
-	if (jsonObj["references"]) {
-		jsonObj["references"].forEach((elem) => {
+	if (objectJson["references"]) {
+		objectJson["references"].forEach((elem) => {
 			const referencesKeys = Object.keys(elem);
 			// console.log(referencesKeys)
 			if (elem["input"]) {
@@ -91,9 +55,9 @@ function createPage(jsonObj) {
 		});
 	}
 
-	if (jsonObj["references"]) {
+	if (objectJson["references"]) {
 		const buttons = [];
-		jsonObj["buttons"].forEach((elem, index) => {
+		objectJson["buttons"].forEach((elem, index) => {
 			buttons[index] = createButton(elem, index);
 
 		});
@@ -102,7 +66,7 @@ function createPage(jsonObj) {
 			buttons.forEach(button => {
 				div.appendChild(button);
 			});
-			section.appendChild(div);
+			container.appendChild(div);
 		}
 	}
 	const inputs = document.querySelectorAll(`input[data-mask]`);
@@ -144,7 +108,7 @@ function createInput(obj, i) {
 			textarea.required = true;
 		}
 		textarea.setAttribute("id", i);
-		section.appendChild(textarea);
+		container.appendChild(textarea);
 		return 0;
 	}
 	if (obj["type"] == "technology") {
@@ -157,7 +121,7 @@ function createInput(obj, i) {
 		});
 		select.classList.add("mb-3", "form-control");
 		select.size = obj["technologies"].length;
-		section.appendChild(select);
+		container.appendChild(select);
 		return 0;
 	}
 
@@ -196,17 +160,15 @@ function createInput(obj, i) {
 	}
 	if (obj["type"] == "color") {
 		input.setAttribute("list", `colors-${i}`);
-		// input.value = "#aaaaaa";
 		input.classList.add("input-color");
 		const datalist = document.createElement("datalist");
 		datalist.id = `colors-${i}`;
-		// console.log(obj["colors"]);
 		obj["colors"].forEach(color => {
 			const option = document.createElement("option");
 			option.value = color;
 			datalist.appendChild(option);
 		});
-		section.appendChild(datalist)
+		container.appendChild(datalist)
 	}
 	if (obj["type"] == "checkbox") {
 		input.classList.remove("form-control", "mb-3");
@@ -219,7 +181,7 @@ function createInput(obj, i) {
 		input.placeholder = obj["mask"];
 	}
 	input.setAttribute("id", i);
-	section.appendChild(input);
+	container.appendChild(input);
 }
 
 function createReference(obj) {
@@ -228,12 +190,12 @@ function createReference(obj) {
 	if (obj["text without ref"]) {
 		span.textContent = obj["text without ref"];
 		span.classList.add("me-1");
-		section.appendChild(span)
+		container.appendChild(span)
 	}
 	a.textContent = obj["text"];
 	a.classList.add("me-3", "mb-3")
 	a.setAttribute("href", obj["ref"]);
-	section.appendChild(a)
+	container.appendChild(a)
 }
 
 function createButton(obj, index) {
@@ -247,7 +209,7 @@ function createButton(obj, index) {
 		button.classList.add("btn-outline-primary");
 	}
 	button.textContent = obj["text"];
-	// section.appendChild(button);
+
 	return button;
 }
 
@@ -255,6 +217,40 @@ function createLabel(obj, i) {
 	const label = document.createElement("label");
 	label.setAttribute("for", i);
 	label.textContent = obj["label"];
-	section.appendChild(label)
+	container.appendChild(label)
 
 }
+
+fileinput.addEventListener('change', () => {
+	selectfile = document.querySelector('#input-file').files;
+	filesMenu.innerHTML = '';
+
+	const select = document.createElement("select");
+	for (let i = 0; i < selectfile .length; i++) {
+		const file = selectfile [i];
+		const option = document.createElement("option");
+		option.textContent = file.name;
+		select.appendChild(option);
+	}
+	select.size = selectfile .length;
+	select.classList.add("mb-1", "form-control");
+	filesMenu.appendChild(select);
+
+	file = selectfile [0];
+	parser(file);
+})
+
+filesMenu.addEventListener('click', (e) => {
+	for (let i = 0; i < selectfile .length; i++) {
+		if (e.target.textContent === selectfile [i].name) {
+			file = selectfile [i];
+			parser(file);
+			break;
+		}
+	}
+})
+
+buttonReset.addEventListener('click', () => {
+	container.innerHTML = '';
+	filesMenu.innerHTML = '';
+})
